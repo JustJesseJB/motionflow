@@ -1,0 +1,305 @@
+/**
+ * MotionFlow - Public CSS
+ * Digital Commerce, Redefined
+ */
+
+/* ... [Previous CSS sections here] ... */
+
+/* ------------------------------------------
+  LOADING INDICATORS
+--------------------------------------------- */
+.motionflow-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--motionflow-z-mid);
+}
+
+.motionflow-loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--motionflow-gray-200);
+  border-radius: var(--motionflow-radius-circle);
+  border-top-color: var(--motionflow-primary);
+  animation: motionflow-spinner 0.8s linear infinite;
+}
+
+@keyframes motionflow-spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Skeleton loaders */
+.motionflow-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--motionflow-gray-200) 0%,
+    var(--motionflow-gray-300) 50%,
+    var(--motionflow-gray-200) 100%
+  );
+  background-size: 200% 100%;
+  animation: motionflow-skeleton-loading 1.5s infinite;
+  border-radius: var(--motionflow-radius-sm);
+}
+
+@keyframes motionflow-skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.motionflow-skeleton-product {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.motionflow-skeleton-image {
+  padding-top: 100%;
+  margin-bottom: var(--motionflow-spacing-md);
+}
+
+.motionflow-skeleton-title {
+  height: 16px;
+  margin-bottom: var(--motionflow-spacing-sm);
+  width: 80%;
+}
+
+.motionflow-skeleton-rating {
+  height: 14px;
+  margin-bottom: var(--motionflow-spacing-sm);
+  width: 60%;
+}
+
+.motionflow-skeleton-price {
+  height: 14px;
+  margin-bottom: var(--motionflow-spacing-lg);
+  width: 40%;
+}
+
+.motionflow-skeleton-button {
+  height: 36px;
+  width: 100%;
+}
+
+/* ------------------------------------------
+  PAGINATION
+--------------------------------------------- */
+.motionflow-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--motionflow-spacing-lg);
+  gap: var(--motionflow-spacing-xs);
+}
+
+.motionflow-pagination-prev,
+.motionflow-pagination-next,
+.motionflow-pagination-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background-color: var(--motionflow-bg);
+  border: 1px solid var(--motionflow-border);
+  border-radius: var(--motionflow-radius-md);
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--motionflow-text);
+  transition: all var(--motionflow-transition-fast);
+}
+
+.motionflow-pagination-prev:hover,
+.motionflow-pagination-next:hover,
+.motionflow-pagination-number:hover {
+  background-color: var(--motionflow-gray-200);
+}
+
+.motionflow-pagination-current {
+  background-color: var(--motionflow-primary);
+  color: white;
+  border-color: var(--motionflow-primary);
+}
+
+.motionflow-pagination-current:hover {
+  background-color: var(--motionflow-primary-dark);
+}
+
+.motionflow-pagination-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.motionflow-pagination-disabled:hover {
+  background-color: var(--motionflow-bg);
+}
+
+.motionflow-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  color: var(--motionflow-text);
+}
+
+.motionflow-pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: var(--motionflow-spacing-xs);
+}
+
+/* ------------------------------------------
+  PRODUCT COUNT
+--------------------------------------------- */
+.motionflow-product-count {
+  margin-bottom: var(--motionflow-spacing-md);
+  font-size: 14px;
+  color: var(--motionflow-text-light);
+}
+
+/* ------------------------------------------
+  NO PRODUCTS
+--------------------------------------------- */
+.motionflow-no-products {
+  padding: var(--motionflow-spacing-xl);
+  text-align: center;
+  color: var(--motionflow-text-light);
+  background-color: var(--motionflow-bg-light);
+  border-radius: var(--motionflow-radius-md);
+  border: 1px solid var(--motionflow-border);
+}
+
+/* ------------------------------------------
+  ACCESSIBILITY
+--------------------------------------------- */
+.motionflow-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ------------------------------------------
+  ANIMATIONS
+--------------------------------------------- */
+@keyframes motionflow-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes motionflow-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes motionflow-slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes motionflow-slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes motionflow-slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes motionflow-slide-out-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes motionflow-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes motionflow-scale-out {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.95); opacity: 0; }
+}
+
+/* Animate cart item being added */
+@keyframes motionflow-cart-item-added {
+  0% { transform: translateX(20px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.motionflow-cart-item-adding {
+  animation: motionflow-cart-item-added 0.3s ease-out;
+}
+
+/* ------------------------------------------
+  UTILITIES
+--------------------------------------------- */
+.motionflow-mb-xs { margin-bottom: var(--motionflow-spacing-xs); }
+.motionflow-mb-sm { margin-bottom: var(--motionflow-spacing-sm); }
+.motionflow-mb-md { margin-bottom: var(--motionflow-spacing-md); }
+.motionflow-mb-lg { margin-bottom: var(--motionflow-spacing-lg); }
+.motionflow-mb-xl { margin-bottom: var(--motionflow-spacing-xl); }
+
+.motionflow-mt-xs { margin-top: var(--motionflow-spacing-xs); }
+.motionflow-mt-sm { margin-top: var(--motionflow-spacing-sm); }
+.motionflow-mt-md { margin-top: var(--motionflow-spacing-md); }
+.motionflow-mt-lg { margin-top: var(--motionflow-spacing-lg); }
+.motionflow-mt-xl { margin-top: var(--motionflow-spacing-xl); }
+
+.motionflow-visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------
+  RESPONSIVE UTILITIES
+--------------------------------------------- */
+.motionflow-hide-mobile {
+  display: none;
+}
+
+.motionflow-hide-tablet {
+  display: none;
+}
+
+.motionflow-hide-desktop {
+  display: none;
+}
+
+@media (min-width: 577px) {
+  .motionflow-hide-mobile {
+    display: initial;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+  .motionflow-hide-tablet {
+    display: initial;
+  }
+}
+
+@media (min-width: 993px) {
+  .motionflow-hide-desktop {
+    display: initial;
+  }
+}
