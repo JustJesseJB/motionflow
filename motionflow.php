@@ -1,4 +1,3 @@
-
 <?php
 /**
  * MotionFlow - Digital Commerce, Redefined
@@ -60,12 +59,9 @@ function motionflow_missing_wc_notice() {
 }
 
 /**
- * Load the autoloader
+ * Initialize logging early
  */
-function motionflow_load_autoloader() {
-    require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-motionflow-autoloader.php';
-    MotionFlow_Autoloader::register();
-}
+require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-motionflow-logger.php';
 
 /**
  * Initialize the plugin
@@ -76,16 +72,17 @@ function motionflow_init() {
         return;
     }
 
-    // Load autoloader
-    motionflow_load_autoloader();
+    // Manual class includes since we're having autoloader issues
+    require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-i18n.php';
+    require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-loader.php';
+    require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-config.php';
+    require_once MOTIONFLOW_PLUGIN_DIR . 'admin/class-main.php';
+    require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-core.php';
 
     // Initialize the core plugin class
     $motionflow = new MotionFlow\Core();
     $motionflow->run();
 }
-
-// Initialize logging early
-require_once MOTIONFLOW_PLUGIN_DIR . 'includes/class-motionflow-logger.php';
 
 // Register activation hook
 register_activation_hook(__FILE__, function() {
