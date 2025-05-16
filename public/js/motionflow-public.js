@@ -1,5 +1,6 @@
+
 /**
- * MotionFlow - Main JavaScript File
+ * MotionFlow - Main JavaScript
  * Digital Commerce, Redefined
  * 
  * This file contains the core functionality for the MotionFlow plugin.
@@ -15,35 +16,263 @@ window.MotionFlow = window.MotionFlow || {};
      * Core functionality
      */
     MotionFlow.Core = {
-        // ... [Previous content] ...
-    };
+        /**
+         * Initialize the plugin
+         * 
+         * @param {Object} options Configuration options
+         */
+        init: function(options) {
+            // Initialize settings
+            this.settings = $.extend({
+                ajaxUrl: '',
+                nonce: {
+                    filter: '',
+                    cart: '',
+                    modal: '',
+                    analytics: ''
+                },
+                settings: {
+                    animations: true,
+                    drag_to_cart: true,
+                    modal: true,
+                    lazy_load: true,
+                    debug: false
+                },
+                selectors: {
+                    product: '.motionflow-product',
+                    dragHandle: '.motionflow-drag-handle',
+                    cartContainer: '.motionflow-cart-sidebar',
+                    cartButton: '.motionflow-cart-button',
+                    filterForm: '.motionflow-filters-form',
+                    filterControl: '.motionflow-filter-control',
+                    gridContainer: '.motionflow-grid'
+                }
+            }, options);
 
-    /**
-     * Modal component
-     */
-    MotionFlow.Modal = {
-        // ... [Previous content] ...
-    };
+            // Initialize components
+            this.initComponents();
+            
+            // Initialize events
+            this.bindEvents();
+            
+            this.log('MotionFlow initialized', this.settings);
+        },
 
-    /**
-     * Cart component
-     */
-    MotionFlow.Cart = {
-        // ... [Previous content] ...
-    };
+        /**
+         * Initialize components
+         */
+        initComponents: function() {
+            // Initialize AJAX component
+            if (window.MotionFlow.AJAX) {
+                window.MotionFlow.AJAX.init({
+                    ajaxUrl: this.settings.ajaxUrl,
+                    nonce: this.settings.nonce,
+                    selectors: this.settings.selectors,
+                    debug: this.settings.settings.debug
+                });
+            }
+            
+            // Initialize LazyLoad component
+            if (window.MotionFlow.LazyLoad && this.settings.settings.lazy_load) {
+                window.MotionFlow.LazyLoad.init();
+            }
+            
+            // Initialize Animation component
+            if (window.MotionFlow.Animation && this.settings.settings.animations) {
+                window.MotionFlow.Animation.init();
+            }
+            
+            // Initialize DragDrop component
+            if (window.MotionFlow.DragDrop && this.settings.settings.drag_to_cart) {
+                window.MotionFlow.DragDrop.init({
+                    enabled: this.settings.settings.drag_to_cart,
+                    selectors: this.settings.selectors,
+                    ajaxUrl: this.settings.ajaxUrl,
+                    nonce: this.settings.nonce.cart,
+                    debug: this.settings.settings.debug
+                });
+            }
+        },
 
-    /**
-     * Filters component
-     */
-    MotionFlow.Filters = {
-        // ... [Previous content] ...
-    };
+        /**
+         * Bind events
+         */
+        bindEvents: function() {
+            var self = this;
+            var settings = this.settings;
+            
+            // Add cart event handlers
+            $(document).on('click', settings.selectors.cartContainer + ' .motionflow-cart-close', function(e) {
+                e.preventDefault();
+                self.closeCart();
+            });
+            
+            // Add modal event handlers
+            $(document).on('click', '.motionflow-modal-close, .motionflow-modal-overlay', function(e) {
+                e.preventDefault();
+                self.closeModal();
+            });
+            
+            // Keep modal open when clicking inside
+            $(document).on('click', '.motionflow-modal-container', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Initialize grid
+            $(document).ready(function() {
+                self.initGrid();
+            });
+        },
 
-    /**
-     * DragDrop component
-     */
-    MotionFlow.DragDrop = {
-        // ... [Previous content] ...
+        /**
+         * Initialize grid
+         * 
+         * @param {Object} options Grid options
+         */
+        initGrid: function(options) {
+            var self = this;
+            var settings = this.settings;
+            
+            // Merge options
+            options = $.extend({
+                container: settings.selectors.gridContainer,
+                enableDragToCart: settings.settings.drag_to_cart,
+                enableModal: settings.settings.modal,
+                isLoopIntegration: false
+            }, options);
+            
+            // Skip if no container
+            if (!$(options.container).length) {
+                return;
+            }
+            
+            // Set up container
+            $(options.container).each(function() {
+                var $container = $(this);
+                
+                // Add container class
+                $container.addClass('motionflow-container');
+                
+                // Initialize drag and drop
+                if (options.enableDragToCart && window.MotionFlow.DragDrop) {
+                    window.MotionFlow.DragDrop.refresh();
+                }
+                
+                // Initialize lazy loading
+                if (settings.settings.lazy_load && window.MotionFlow.LazyLoad) {
+                    window.MotionFlow.LazyLoad.refresh();
+                }
+                
+                // Initialize animations
+                if (settings.settings.animations && window.MotionFlow.Animation) {
+                    window.MotionFlow.Animation.refresh();
+                }
+            });
+            
+            this.log('Grid initialized', options);
+        },
+
+        /**
+         * Open cart
+         */
+        openCart: function() {
+            var $cart = $(this.settings.selectors.cartContainer);
+            
+            $cart.addClass('motionflow-active');
+            $('body').addClass('motionflow-cart-open');
+            
+            $(document).trigger('motionflow:cart:opened', [$cart]);
+        },
+
+        /**
+         * Close cart
+         */
+        closeCart: function() {
+            var $cart = $(this.settings.selectors.cartContainer);
+            
+            $cart.removeClass('motionflow-active');
+            $('body').removeClass('motionflow-cart-open');
+            
+            $(document).trigger('motionflow:cart:closed', [$cart]);
+        },
+
+        /**
+         * Open modal
+         * 
+         * @param {string} html Modal HTML
+         */
+        openModal: function(html) {
+            // Create modal if it doesn't exist
+            if (!$('.motionflow-modal').length) {
+                $('body').append('<div class="motionflow-modal-overlay"></div><div class="motionflow-modal"></div>');
+            }
+            
+            // Get modal elements
+            var $modal = $('.motionflow-modal');
+            var $overlay = $('.motionflow-modal-overlay');
+            
+            // Set modal content
+            $modal.html(html);
+            
+            // Show modal and overlay
+            $overlay.fadeIn(200);
+            $modal.fadeIn(200);
+        },
+
+        /**
+         * Close modal
+         */
+        closeModal: function() {
+            $('.motionflow-modal-overlay').fadeOut(200);
+            $('.motionflow-modal').fadeOut(200);
+        },
+
+        /**
+         * Get current device
+         * 
+         * @return {string} The device type (desktop, tablet, mobile)
+         */
+        getCurrentDevice: function() {
+            var width = window.innerWidth;
+            
+            if (width < 576) {
+                return 'mobile';
+            } else if (width < 992) {
+                return 'tablet';
+            } else {
+                return 'desktop';
+            }
+        },
+
+        /**
+         * Log message
+         * 
+         * @param {string} message The log message
+         * @param {Object} data    The log data
+         * @param {string} type    The log type (log, warn, error)
+         */
+        log: function(message, data, type) {
+            // Skip if debugging is disabled
+            if (!this.settings.settings.debug) {
+                return;
+            }
+            
+            // Set default type
+            type = type || 'log';
+            
+            // Log message
+            switch (type) {
+                case 'warn':
+                    console.warn('MotionFlow: ' + message, data);
+                    break;
+                case 'error':
+                    console.error('MotionFlow: ' + message, data);
+                    break;
+                default:
+                    console.log('MotionFlow: ' + message, data);
+                    break;
+            }
+        }
     };
 
     /**
@@ -137,8 +366,8 @@ window.MotionFlow = window.MotionFlow || {};
             $('.motionflow-lazy').each(function() {
                 var $image = $(this);
                 
-                if (self.isElementInViewport($image[0])) {
-                    self.loadImage($image[0]);
+                if (self.isElementInViewport(this)) {
+                    self.loadImage(this);
                 }
             });
         },
@@ -167,9 +396,6 @@ window.MotionFlow = window.MotionFlow || {};
             $img.attr('src', src)
                 .removeClass('motionflow-lazy')
                 .addClass('motionflow-lazy-loaded');
-            
-            // Log
-            MotionFlow.Core.log('Lazy image loaded: ' + src);
         },
 
         /**
@@ -236,7 +462,7 @@ window.MotionFlow = window.MotionFlow || {};
             var core = MotionFlow.Core;
             
             // Check if animations are enabled
-            if (!core.settings.animations) {
+            if (!core.settings.settings.animations) {
                 return;
             }
             
@@ -307,115 +533,6 @@ window.MotionFlow = window.MotionFlow || {};
     };
 
     /**
-     * Analytics component
-     */
-    MotionFlow.Analytics = {
-        /**
-         * Initialize the analytics component
-         */
-        init: function() {
-            this.bindEvents();
-            MotionFlow.Core.log('Analytics component initialized');
-        },
-
-        /**
-         * Bind events
-         */
-        bindEvents: function() {
-            var self = this;
-            var core = MotionFlow.Core;
-            
-            // Track product views
-            $(document).on('click', core.settings.selectors.product + ' a', function() {
-                var $product = $(this).closest(core.settings.selectors.product);
-                var productId = $product.data('product-id');
-                
-                if (productId) {
-                    self.trackEvent('product_click', {
-                        product_id: productId
-                    });
-                }
-            });
-            
-            // Track modal views
-            $(document).on('motionflow:modal:opened', function(e, productId, $modal) {
-                self.trackEvent('modal_view', {
-                    product_id: productId
-                });
-            });
-            
-            // Track add to cart
-            $(document).on('motionflow:cart:added', function(e, productId, quantity, data) {
-                self.trackEvent('add_to_cart', {
-                    product_id: productId,
-                    quantity: quantity,
-                    method: 'click'
-                });
-            });
-            
-            // Track drag to cart
-            $(document).on('motionflow:dragdrop:dropped', function(e, productId, $dropZone, dropZoneType) {
-                self.trackEvent('add_to_cart', {
-                    product_id: productId,
-                    quantity: 1,
-                    method: 'drag'
-                });
-            });
-            
-            // Track filter usage
-            $(document).on('motionflow:filters:applied', function(e, data) {
-                self.trackEvent('filter_products', {
-                    filters: data.active_filters
-                });
-            });
-        },
-
-        /**
-         * Track an event
-         * 
-         * @param {string} eventType The event type
-         * @param {Object} eventData The event data
-         */
-        trackEvent: function(eventType, eventData) {
-            var core = MotionFlow.Core;
-            
-            // Skip if analytics is disabled
-            if (!core.settings.enable_analytics) {
-                return;
-            }
-            
-            // Add timestamp
-            eventData.timestamp = new Date().toISOString();
-            
-            // Add page info
-            eventData.page_url = window.location.href;
-            eventData.page_title = document.title;
-            
-            // Add device info
-            eventData.device_type = core.getCurrentDevice();
-            
-            // AJAX request
-            $.ajax({
-                url: core.settings.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'motionflow_track_event',
-                    event_type: eventType,
-                    event_data: eventData,
-                    nonce: core.settings.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        core.log('Event tracked: ' + eventType);
-                    } else {
-                        core.log('Failed to track event: ' + eventType, 'warn');
-                    }
-                }
-            });
-        }
-    };
-
-    /**
      * Initialize MotionFlow on document ready
      */
     $(document).ready(function() {
@@ -425,21 +542,5 @@ window.MotionFlow = window.MotionFlow || {};
         // Initialize MotionFlow
         MotionFlow.Core.init(options);
     });
-
-    /**
-     * Global initialization function
-     * 
-     * @param {string} selector The container selector
-     * @param {Object} options Configuration options
-     */
-    window.initMotionFlow = function(selector, options) {
-        // Add container selector to options
-        options = options || {};
-        options.selectors = options.selectors || {};
-        options.selectors.container = selector;
-        
-        // Initialize MotionFlow
-        MotionFlow.Core.init(options);
-    };
 
 })(jQuery, window, document);
